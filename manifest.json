@@ -1,6 +1,6 @@
 {
-    "name": "web",
-    "short_name": "web",
+    "name": "concentrate_factory_mes",
+    "short_name": "concentrate_factory_mes",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
