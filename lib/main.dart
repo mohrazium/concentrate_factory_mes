@@ -65,7 +65,7 @@ class _DashboardMenuState extends State<DashboardMenu> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => const RegrindView(
-                              title: "شارژ گلوله ریگرن ۱", regrindName: 'ریگرند۱', regrindPower: 1300,
+                              title: "شارژ گلوله ریگرند ۱", regrindName: 'ریگرند۱', regrindPower: 1300,
                             )),
                   );
                 },
@@ -86,7 +86,7 @@ class _DashboardMenuState extends State<DashboardMenu> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => const RegrindView(
-                          title: "شارژ گلوله ریگرن ۲", regrindName: 'ریگرند۲', regrindPower: 1180,
+                          title: "شارژ گلوله ریگرند ۲", regrindName: 'ریگرند۲', regrindPower: 1180,
                         )),
                   );
                 },
