@@ -1,11 +1,39 @@
-
-import 'package:concentrate_factory_mes/regrind_calculations.dart';
+import 'package:concentrate_factory_mes/bullet_charge_calculations.dart';
 import 'package:flutter/material.dart';
+
+enum Buket {
+  buket3Ton('باکت ۳ تنی', 3),
+  buket5Ton('باکت ۵ تنی', 5);
+
+  const Buket(this.label, this.value);
+
+  final String label;
+  final int value;
+}
+
+enum SavedBuketCapacity {
+  buket13('یک باکت ۳ تنی', 3),
+  buket23('دو باکت ۳ تنی', 6),
+  buket33('سه باکت ۳ تنی', 9),
+  buket15('یک باکت ۵ تنی', 5),
+  buket25('دو باکت ۵ تنی', 10),
+  buket35('سه باکت ۵ تنی', 15);
+
+  const SavedBuketCapacity(this.label, this.value);
+
+  final String label;
+  final int value;
+}
 
 class RegrindView extends StatefulWidget {
   final String regrindName;
-  final double regrindPower;
-  const RegrindView({super.key, required this.title, required this.regrindName, required this.regrindPower});
+  final int regrindPower;
+
+  const RegrindView(
+      {super.key,
+      required this.title,
+      required this.regrindName,
+      required this.regrindPower});
 
   final String title;
 
@@ -14,31 +42,46 @@ class RegrindView extends StatefulWidget {
 }
 
 class _RegrindViewState extends State<RegrindView> {
-
   @override
   void initState() {
-    regrindCalculations.normalPower = widget.regrindPower;
+    _initValues();
     super.initState();
   }
 
   RegrandCaculations regrindCalculations = RegrandCaculations();
-  final TextEditingController _textEditingController = TextEditingController(text: "0");
+  final TextEditingController _textEditingController =
+      TextEditingController(text: "1300");
+  final TextEditingController buketController = TextEditingController();
+  final TextEditingController savedBuketCapacityController =
+      TextEditingController();
 
   void _calculation() {
     setState(() {
-      regrindCalculations.calculate();
+      try {
+        regrindCalculations.calculate();
+      } catch (ignored) {
+        //ignore
+      }
     });
   }
-void _resetValues(){
+
+  void _resetValues() {
     setState(() {
-      _textEditingController.text = "${widget.regrindPower}";
-      regrindCalculations = RegrandCaculations(normalPower: widget.regrindPower);
+      regrindCalculations.clear();
+      _initValues();
     });
-}
+  }
+
+  void _initValues() {
+    regrindCalculations.normalPower = widget.regrindPower;
+    regrindCalculations.userPower = widget.regrindPower;
+    regrindCalculations.savedBuketCapacity = SavedBuketCapacity.buket23.value;
+    regrindCalculations.buketTonnageCapacity = Buket.buket3Ton.value;
+    _textEditingController.text = "${widget.regrindPower}";
+  }
+
   @override
   Widget build(BuildContext context) {
-    regrindCalculations.normalPower = widget.regrindPower;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -48,7 +91,7 @@ void _resetValues(){
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-             widget.title,
+              widget.title,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(
@@ -63,28 +106,14 @@ void _resetValues(){
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${regrindCalculations.normalPower}',
+                      '${regrindCalculations.chargedBuket}',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(
                       height: 20,
                     ),
                     Text(
-                      '${regrindCalculations.currentPower}',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      '${regrindCalculations.chargedPocket}',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      '${regrindCalculations.savedPocket}',
+                      '${regrindCalculations.savedBuket}',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ],
@@ -93,20 +122,6 @@ void _resetValues(){
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      ' : قدرت ',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      ' : اختلاف قدرت ',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
                     Text(
                       ' : شارژ گلوله ',
                       style: Theme.of(context).textTheme.headlineMedium,
@@ -131,16 +146,66 @@ void _resetValues(){
                 maxLength: 6,
                 controller: _textEditingController,
                 onChanged: (val) {
-
-
                   regrindCalculations.userPower =
-                      double.parse(_textEditingController.text.trim());
+                      int.tryParse(_textEditingController.text.trim()) ?? widget.regrindPower;
                 },
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintTextDirection: TextDirection.rtl,
                   hintText: 'قدرت فعلی ریگرند را وارد کنید',
                 ),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            SizedBox(
+              width: 300,
+              child: DropdownMenu<SavedBuketCapacity>(
+                width: 300,
+                initialSelection: SavedBuketCapacity.buket23,
+                controller: savedBuketCapacityController,
+                requestFocusOnTap: true,
+                label: const Text('ظرفیت ذخیره گلوله'),
+                onSelected: (SavedBuketCapacity? cap) {
+                  setState(() {
+                    regrindCalculations.savedBuketCapacity = cap?.value ?? 3;
+                  });
+                },
+                dropdownMenuEntries: SavedBuketCapacity.values
+                    .map<DropdownMenuEntry<SavedBuketCapacity>>(
+                        (SavedBuketCapacity cap) {
+                  return DropdownMenuEntry<SavedBuketCapacity>(
+                    label: cap.label,
+                    value: cap,
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            SizedBox(
+              width: 300,
+              child: DropdownMenu<Buket>(
+                width: 300,
+                initialSelection: Buket.buket3Ton,
+                controller: buketController,
+                requestFocusOnTap: true,
+                label: const Text('باکت مورد استفاده'),
+                onSelected: (Buket? buket) {
+                  setState(() {
+                    regrindCalculations.buketTonnageCapacity =
+                        buket?.value ?? 3;
+                  });
+                },
+                dropdownMenuEntries:
+                    Buket.values.map<DropdownMenuEntry<Buket>>((Buket buket) {
+                  return DropdownMenuEntry<Buket>(
+                    label: buket.label,
+                    value: buket,
+                  );
+                }).toList(),
               ),
             ),
             const SizedBox(
@@ -156,7 +221,7 @@ void _resetValues(){
                   height: 50,
                   child: IconButton(
                     onPressed: () => _resetValues(),
-                    icon: const Icon(Icons.reset_tv),
+                    icon: const Icon(Icons.refresh),
                   ),
                 ),
                 Container(
@@ -172,7 +237,6 @@ void _resetValues(){
           ],
         ),
       ),
-
     );
   }
 }
